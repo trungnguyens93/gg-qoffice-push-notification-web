@@ -470,22 +470,13 @@
     <!-- Page -->
     <div class="page">
         <form class="form-inline" style="padding: 30px;">
-
-            <!-- <button class="btn btn-primary" id="signIn">Sign in</button> -->
-
-            <button class="btn btn-primary" id="btnRegisterToken" style="margin-left: 30px;">Get Token</button>
-
+            <label>Current token : </label>
             <input type="text" class="form-control" id="txtRegisterToken" style="margin-left: 30px; width: 50%;"
                 disabled />
         </form>
 
         <form class="form-inline" style="padding: 30px;">
-
-            <!-- <button class="btn btn-primary" id="signIn">Sign in</button> -->
-
-            <button class="btn btn-primary" id="subscribe" style="margin-left: 30px;">Subscribe</button>
-
-            <!-- <input type="text" class="form-control" id="registerToken" style="margin-left: 30px; width: 50%;" disabled /> -->
+            <button class="btn btn-primary" id="subscribe">Subscribe</button>
         </form>
     </div>
     <!-- End Page -->
@@ -555,65 +546,6 @@
     <script src="./wwwroot/assets/js/eoffice.js"></script>
 
     <script src="./wwwroot/js/main.js"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            // Load data for notifications
-            var controller = {
-                URL: {
-                    notifications: "http://localhost:8082/api/notifications/nhan-vien/1?status=ALL&page=1&limit=15"
-                },
-                HTML: {
-                    listOfNotifications: ".list-group-content",
-                    notification: ".list-group-item"
-                }
-            };
-
-            $.ajax({
-                type: "GET",
-                url: controller.URL.notifications,
-                contentType: "application/json;",
-                dataType: "json",
-                success: function (responseData) {
-
-                    for (var i = 0; i < responseData.data.length; i++) {
-                        var notification = $(controller.HTML.notification);
-                        box = notification.clone(true, true);
-                        box.find(".noi-dung").html(responseData.data[i].noiDung);
-
-                        $(controller.HTML.listOfNotifications).append(box);
-                    }
-                    $(controller.HTML.notification)[0].remove();
-                },
-                error: function (responseData) {
-                    $(controller.HTML.notification)[0].remove();
-                }
-            });
-
-            $("#subscribe").click(function () {
-                var token = $("#txtRegisterToken").val();
-
-                var formData = {
-                    "token": $("#txtRegisterToken").val()
-                };
-
-                $.ajax({
-                    type: "POST",
-                    url: "http://localhost:8082/api/notifications/register",
-                    contentType: "application/json;",
-                    data: JSON.stringify(formData),
-                    success: function (responseData) {
-                        console.log("success");
-                    },
-                    error: function (responseData) {
-                        console.log("error");
-                    }
-                });
-            });
-
-        });
-    </script>
 
 </body>
 

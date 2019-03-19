@@ -1,72 +1,122 @@
 {
-    // Init firebase
-    // Initialize Firebase
-    // var config = {
-    //     apiKey: "AIzaSyBCjM7eX24t-lyyhuZmFee0i8SPfgItmXg",
-    //     authDomain: "gcmsenderservice.firebaseapp.com",
-    //     databaseURL: "https://gcmsenderservice.firebaseio.com",
-    //     projectId: "gcmsenderservice",
-    //     storageBucket: "gcmsenderservice.appspot.com",
-    //     messagingSenderId: "785381922472"
-    // };
-    // firebase.initializeApp(config);
-
-    // navigator.serviceWorker.register('../sw.js');
-    // navigator.serviceWorker.ready;
-
     firebase.initializeApp({
         'messagingSenderId': '785381922472'
     });
 
     const messaging = firebase.messaging();
 
-    const btnRegisterToken = document.getElementById('btnRegisterToken');
-    const txtRegisterToken = document.getElementById('txtRegisterToken');
+    $("#subscribe").click(function () {
+        var formData = {
+            "token": $("#txtRegisterToken").val()
+        };
 
-    btnRegisterToken.addEventListener('click', register);
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8082/api/notifications/register",
+            contentType: "application/json;",
+            dataType: "json",
+            data: JSON.stringify(formData),
+            success: function (responseData) {
+                console.log("success");
+            },
+            error: function (responseData) {
+                console.log("error");
+            }
+        });
+    });
 
-    function register() {
-        alert("Sign In");
+    function getCurrentToken() {
+        messaging.getToken().then(function (currentToken) {
+            if (currentToken) {
+                $("#txtRegisterToken").val(currentToken);
+                console.log(currentToken);
+            } else {
+                console.log('No Instance ID token available. Request permission to generate one.');
+            }
+        }).catch(function (err) {
+            console.log('An error occurred while retrieving token. ', err);
+        });
+    }
 
+    function sendTokenToServer() {
+        var formData = {
+
+        };
+
+        $.ajax({
+            type: "POST",
+            url: controller.URL.notifications,
+            contentType: "application/json;",
+            dataType: "json",
+            data: JSON.stringify(formData),
+            success: function (responseData) {
+
+            },
+            error: function (responseData) {
+
+            }
+        });
+    }
+
+    messaging.onTokenRefresh(function () {
+
+    });
+
+    messaging.onMessage(function (payload) {
+        console.log('Message received. ', payload);
+
+        var notification = $(".list-group-item");
+        box = notification.clone(true, true);
+        box.find(".noi-dung").html(payload.data.message);
+
+        $(".list-group-content").append(box);
+    });
+
+
+
+    $(document).ready(function () {
+
+        // Load data for notifications
+        var controller = {
+            URL: {
+                notifications: "http://localhost:8082/api/notifications/nhan-vien/1?status=ALL&page=1&limit=15"
+            },
+            HTML: {
+                listOfNotifications: ".list-group-content",
+                notification: ".list-group-item"
+            }
+        };
+
+        $.ajax({
+            type: "GET",
+            url: controller.URL.notifications,
+            contentType: "application/json;",
+            success: function (responseData) {
+
+                for (var i = 0; i < responseData.data.length; i++) {
+                    var notification = $(controller.HTML.notification);
+                    box = notification.clone(true, true);
+                    box.find(".noi-dung").html(responseData.data[i].noiDung);
+
+                    $(controller.HTML.listOfNotifications).append(box);
+                }
+                $(controller.HTML.notification)[0].remove();
+            },
+            error: function (responseData) {
+                $(controller.HTML.notification)[0].remove();
+            }
+        });
+
+        // Get current token
         messaging.requestPermission().then(function () {
-            console.log('Notification permission granted.');
             // TODO(developer): Retrieve an Instance ID token for use with FCM.
             // ...
-
-            getRegisterToken();
+            console.log('Notification permission granted.');
+            getCurrentToken();
 
         }).catch(function (err) {
             console.log('Unable to get permission to notify.', err);
         });
 
-        //FIREBASE_AUTH.signInWithPopup(new firebase.auth.GoogleAnthProvider());
-    }
-
-    function getRegisterToken() {
-        messaging.getToken().then(function (currentToken) {
-            if (currentToken) {
-                //sendTokenToServer(currentToken);
-                //updateUIForPushEnabled(currentToken);
-
-                txtRegisterToken.value = currentToken;
-
-                console.log(currentToken);
-            } else {
-                // Show permission request.
-                console.log('No Instance ID token available. Request permission to generate one.');
-                // Show permission UI.
-                //updateUIForPushPermissionRequired();
-                //setTokenSentToServer(false);
-            }
-        }).catch(function (err) {
-            console.log('An error occurred while retrieving token. ', err);
-            //showToken('Error retrieving Instance ID token. ', err);
-            //setTokenSentToServer(false);
-        });
-    }
-        
-    messaging.onMessage(function (payload) {
-        console.log('Message received. ', payload);
-        // ...
     });
 }
