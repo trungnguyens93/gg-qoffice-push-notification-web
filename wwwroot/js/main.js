@@ -12,7 +12,30 @@
 
         $.ajax({
             type: "POST",
-            url: "http://localhost:8082/api/notifications/register",
+            url: "http://localhost:8082/api/notifications/subscribe",
+            contentType: "application/json;",
+            dataType: "json",
+            data: JSON.stringify(formData),
+            success: function (responseData) {
+                console.log("success");
+            },
+            error: function (responseData) {
+                console.log("error");
+            }
+        });
+    });
+
+    $("#register").click(function () {
+        var formData = {
+            "nhanVienId" : 1,
+            "chucDanhId" : 1,
+            "token": $("#txtRegisterToken").val(),
+            "thongTin" : "Google Browser"
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8082/api/notifications/devices",
             contentType: "application/json;",
             dataType: "json",
             data: JSON.stringify(formData),
